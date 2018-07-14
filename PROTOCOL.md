@@ -129,12 +129,12 @@ This allows the direct setting of a section of the graphics buffer,
 if your width and height are not multiples of 8 then you should pad
 the output with zeros in the unused lsb.
 
-   example:  a 5x5 bitmap drawn at (0,0)
+    example:  a 5x5 bitmap drawn at (0,0)
 
-   ..X.. = 00100xxx = 00100000 = 20 (hex)
-   .X.X. = 01010xxx = 01010000 = 50 
-   X.X.X = 10101xxx = 10101000 = A8
-   X...X = 10001xxx = 10001000 = 88
-   X...X = 10001xxx = 10001000 = 88
+    ..X.. = 00100xxx = 00100000 = 20 (hex)
+    .X.X. = 01010xxx = 01010000 = 50 
+    X.X.X = 10101xxx = 10101000 = A8
+    X...X = 10001xxx = 10001000 = 88
+    X...X = 10001xxx = 10001000 = 88
 
    Resulting command: 0B0000552050A88888\n
