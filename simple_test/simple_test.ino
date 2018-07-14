@@ -13,19 +13,19 @@ void setup() {
 }
 
 void loop() {
-  Serial.println('First test, blank panel');
+  Serial.println('First test, all set');
   for (int row=0;row<ROW_LIMIT; row++) {
     for(int col=0; col<COL_LIMIT; col++) {
-      panel.setdot(row, col, 0);
+      panel.setdot(row, col, 1);
     }
   }
   Serial.println("Pause 1 second");
   delay(1000);
 
-  Serial.println("Second test. all set");
+  Serial.println("Second test. all blank");
   for (int row=0;row<ROW_LIMIT; row++) {
     for(int col=0; col<COL_LIMIT; col++) {
-      panel.setdot(row, col, 1);
+      panel.setdot(row, col, 0);
     }
   }
   Serial.println("Pause 1 second");
