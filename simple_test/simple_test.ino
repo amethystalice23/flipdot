@@ -4,7 +4,7 @@
 #define COL_LIMIT 32
 
 // create a panel, use default pin assignments
-FlipDotPanel panel(0);
+FlipDotPanel panel(400);
 
 void setup() {
   Serial.begin(115200);
@@ -20,7 +20,7 @@ void loop() {
     }
   }
   Serial.println("Pause 1 second");
-  delay(1000);
+  delay(2000);
 
   Serial.println("Second test. all blank");
   for (int row=0;row<ROW_LIMIT; row++) {
@@ -29,7 +29,7 @@ void loop() {
     }
   }
   Serial.println("Pause 1 second");
-  delay(1000);
+  delay(2000);
 
   Serial.println("Running dot test");
   int xa=0, xb=0, ya=0, yb=0;
@@ -57,5 +57,5 @@ void loop() {
     }
     panel.setdot(ya, xa, 1);
   }while (1);
-
+  delay(2000);
 }

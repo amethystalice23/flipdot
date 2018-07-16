@@ -7,7 +7,9 @@
 #define DEFAULT_ROW_PIN     9
 #define DEFAULT_COLOUR_PIN 10
 #define DEFAULT_LATCH_PIN  11
+#define ENABLE_PIN          12
 
+#define PULSE_WIDTH 200
 
 /*
  * Flip Dot Panel (of unknown type) Driver
@@ -35,6 +37,7 @@ class FlipDotPanel
     int _pin_colour;
     int _pin_latch;
     int _pin_delay;
+    int _pin_enable;
     void panel_init(void);
 };
 
