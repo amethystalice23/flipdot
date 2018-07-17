@@ -1,10 +1,7 @@
 #include "panel.h"
 
-#define ROW_LIMIT 16
-#define COL_LIMIT 32
-
 // create a panel, use default pin assignments
-FlipDotPanel panel(400);
+FlipDotPanel panel;
 
 void setup() {
   Serial.begin(115200);
@@ -14,21 +11,31 @@ void setup() {
 
 void loop() {
   Serial.println('First test, all set');
-  for (int row=0;row<ROW_LIMIT; row++) {
-    for(int col=0; col<COL_LIMIT; col++) {
-      panel.setdot(row, col, 1);
+
+  panel.reset();
+  panel.set_colour(1);
+  for(int col=0; col<FLIPDOT_WIDTH; col++) {
+    for (int row=0;row<FLIPDOT_HEIGHT; row++) {
+        panel.commit();
+        panel.next_row();
     }
+    panel.next_col();
   }
-  Serial.println("Pause 1 second");
+
+  Serial.println("Pausing");
   delay(2000);
+  panel.reset();
+  panel.set_colour(0);
+  for(int col=0; col<FLIPDOT_WIDTH; col++) {
+    for (int row=0;row<FLIPDOT_HEIGHT; row++) {
+        panel.commit();
+        panel.next_row();
+    }
+    panel.next_col();
+  }
 
   Serial.println("Second test. all blank");
-  for (int row=0;row<ROW_LIMIT; row++) {
-    for(int col=0; col<COL_LIMIT; col++) {
-      panel.setdot(row, col, 0);
-    }
-  }
-  Serial.println("Pause 1 second");
+  Serial.println("Pausing");
   delay(2000);
 
   Serial.println("Running dot test");
@@ -46,13 +53,13 @@ void loop() {
       stepdir = 1;
       ya++;
     } else
-    if (xa >= COL_LIMIT) {
-      xa = COL_LIMIT - 1;
+    if (xa >= FLIPDOT_WIDTH) {
+      xa = FLIPDOT_WIDTH - 1;
       stepdir = -1;
       ya++;
     }
 
-    if (ya >= ROW_LIMIT) {
+    if (ya >= FLIPDOT_HEIGHT) {
       break;
     }
     panel.setdot(ya, xa, 1);

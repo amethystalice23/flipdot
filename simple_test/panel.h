@@ -3,11 +3,18 @@
 
 #include "Arduino.h"
 
-#define DEFAULT_COL_PIN     8
-#define DEFAULT_ROW_PIN     9
-#define DEFAULT_COLOUR_PIN 10
-#define DEFAULT_LATCH_PIN  11
-#define ENABLE_PIN          12
+#define FLIPDOT_WIDTH               32
+#define FLIPDOT_HEIGHT              16
+
+#define FLIPDOT_COL_PIN             8
+#define FLIPDOT_ROW_PIN             9
+#define FLIPDOT_COLOUR_PIN          10
+#define FLIPDOT_LATCH_PIN           11
+
+#define FLIPDOT_ENABLE0_PIN         4
+#define FLIPDOT_ENABLE1_PIN         5
+#define FLIPDOT_ENABLE2_PIN         6
+#define FLIPDOT_ENABLE3_PIN         7
 
 #define PULSE_WIDTH 200
 
@@ -18,7 +25,7 @@
  * A line that takes pulses to select a column (reset row count)
  * A line that takes pulses to select a row
  * A line which sets pixel colour high/low
- * A line with latches the choice and resets row/col counts
+ * A line with latches the choice
  * 
  * so: set col, set row, set colour, pull the latch
  */
@@ -26,19 +33,16 @@
 class FlipDotPanel
 {
   public:
-    FlipDotPanel(int pindelay=0, int colpin=DEFAULT_COL_PIN, int rowpin=DEFAULT_ROW_PIN,
-                 int colourpin=DEFAULT_COLOUR_PIN, int latchpin=DEFAULT_LATCH_PIN);
-                 
-    void setdot(int row, int col, bool pen);
+    FlipDotPanel();
+    
+    void reset();
+    void next_row();
+    void next_col();
+    void set_colour(bool pen);
+    void commit();
+    void next_panel();
 
-  private:
-    int _pin_col;
-    int _pin_row;
-    int _pin_colour;
-    int _pin_latch;
-    int _pin_delay;
-    int _pin_enable;
-    void panel_init(void);
+    void setdot(uint8_t row, uint8_t col, bool pen);
 };
 
 
