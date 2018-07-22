@@ -16,7 +16,7 @@
 #define FLIPDOT_ENABLE2_PIN         6
 #define FLIPDOT_ENABLE3_PIN         7
 
-#define PULSE_WIDTH 200
+#define PULSE_WIDTH 4
 
 /*
  * Flip Dot Panel (of unknown type) Driver
