@@ -7,42 +7,37 @@ FlipDotPanel::FlipDotPanel()
     pinMode(FLIPDOT_COL_PIN, OUTPUT);
     pinMode(FLIPDOT_ROW_PIN, OUTPUT);
     pinMode(FLIPDOT_COLOUR_PIN, OUTPUT);
-    pinMode(FLIPDOT_LATCH_PIN, OUTPUT);
-
-    pinMode(FLIPDOT_ENABLE0_PIN, OUTPUT);
-    pinMode(FLIPDOT_ENABLE1_PIN, OUTPUT);
-    pinMode(FLIPDOT_ENABLE2_PIN, OUTPUT);
-    pinMode(FLIPDOT_ENABLE3_PIN, OUTPUT);
+    pinMode(FLIPDOT_ENABLE_PIN, OUTPUT);
+    pinMode(FLIPDOT_RESET_PIN, OUTPUT);
+    pinMode(FLIPDOT_COIL_PIN, OUTPUT);
 
     digitalWrite(FLIPDOT_COL_PIN, LOW);
     digitalWrite(FLIPDOT_ROW_PIN, LOW);
     digitalWrite(FLIPDOT_COLOUR_PIN, LOW);
-    digitalWrite(FLIPDOT_LATCH_PIN, LOW);
-
-    digitalWrite(FLIPDOT_ENABLE0_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, LOW);
+    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
+    digitalWrite(FLIPDOT_RESET_PIN, LOW);
+    digitalWrite(FLIPDOT_COIL_PIN, LOW);
 }
 
-/* sequence to reset the address lines */
+void FlipDotPanel::enable()
+{
+    digitalWrite(FLIPDOT_ENABLE_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+void FlipDotPanel::disable()
+{
+    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+/* reset the address lines */
 void FlipDotPanel::reset()
 {
-    digitalWrite(FLIPDOT_ENABLE0_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, HIGH);
+    digitalWrite(FLIPDOT_RESET_PIN, HIGH);
     delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_COL_PIN, HIGH);
-    digitalWrite(FLIPDOT_LATCH_PIN, HIGH);
+    digitalWrite(FLIPDOT_RESET_PIN, LOW);
     delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_ENABLE0_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, LOW);
-    delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_COL_PIN, LOW);
-    digitalWrite(FLIPDOT_LATCH_PIN, LOW);
 }
 
 void FlipDotPanel::next_row()
@@ -68,41 +63,10 @@ void FlipDotPanel::set_colour(bool pen)
 
 void FlipDotPanel::commit()
 {
-    digitalWrite(FLIPDOT_ENABLE0_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, HIGH);
+    digitalWrite(FLIPDOT_COIL_PIN, HIGH);
+    delayMicroseconds(COIL_PULSE);
+    digitalWrite(FLIPDOT_COIL_PIN, LOW);
     delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_LATCH_PIN, HIGH);
-    delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, LOW);
-    delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_LATCH_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE0_PIN, HIGH);
-}
-
-/* dont actually know what this does, it might not
- * be a panel change, but it does occur in the traces
- */
-void FlipDotPanel::next_panel()
-{
-    digitalWrite(FLIPDOT_LATCH_PIN, HIGH);
-    digitalWrite(FLIPDOT_COL_PIN, HIGH);
-    delayMicroseconds(PULSE_WIDTH);
-
-    digitalWrite(FLIPDOT_ENABLE0_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE1_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE2_PIN, HIGH);
-    digitalWrite(FLIPDOT_ENABLE3_PIN, HIGH);
-    delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_COL_PIN, LOW);
-    digitalWrite(FLIPDOT_LATCH_PIN, LOW);
-    delayMicroseconds(PULSE_WIDTH);
-    delayMicroseconds(PULSE_WIDTH);
-    delayMicroseconds(PULSE_WIDTH);
-    reset();
 }
 
 /*
@@ -113,6 +77,7 @@ void FlipDotPanel::next_panel()
  */
 void FlipDotPanel::setdot(uint8_t row, uint8_t col, bool pen)
 {
+    enable();
     reset();
     set_colour(pen);
     for(uint8_t x=0; x<col; x++)
@@ -120,4 +85,5 @@ void FlipDotPanel::setdot(uint8_t row, uint8_t col, bool pen)
     for(uint8_t y=0; y<row; y++)
         next_row();
     commit();
+    disable();
 }

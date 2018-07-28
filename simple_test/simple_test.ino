@@ -10,38 +10,45 @@ void setup() {
 }
 
 void loop() {
-  Serial.println('First test, all set');
+  Serial.println('First test, slowly set all');
 
+  panel.enable();
   panel.reset();
   panel.set_colour(1);
   for(int col=0; col<FLIPDOT_WIDTH; col++) {
     for (int row=0;row<FLIPDOT_HEIGHT; row++) {
         panel.commit();
         panel.next_row();
+        delay(500);   // SLOW it down so we can see it working
     }
     panel.next_col();
   }
+  panel.disable();
 
   Serial.println("Pausing");
   delay(2000);
+
+  Serial.println("Second test. clear all slowly");
+  panel.enable();
   panel.reset();
   panel.set_colour(0);
   for(int col=0; col<FLIPDOT_WIDTH; col++) {
     for (int row=0;row<FLIPDOT_HEIGHT; row++) {
         panel.commit();
         panel.next_row();
+        delay(500);   // SLOW it down so we can see it working
     }
     panel.next_col();
   }
+  panel.disable();
 
-  Serial.println("Second test. all blank");
   Serial.println("Pausing");
   delay(2000);
 
   Serial.println("Running dot test");
   int xa=0, xb=0, ya=0, yb=0;
   int stepdir = 1;
-  
+ 
   do {
     panel.setdot(yb, xb, 0);
     yb=ya;
@@ -63,6 +70,7 @@ void loop() {
       break;
     }
     panel.setdot(ya, xa, 1);
+    delay(500);   // SLOW it down so we can see it working
   }while (1);
   delay(2000);
 }
