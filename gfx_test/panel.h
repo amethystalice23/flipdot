@@ -3,39 +3,42 @@
 
 #include "Arduino.h"
 
-#define DEFAULT_COL_PIN     8
-#define DEFAULT_ROW_PIN     9
-#define DEFAULT_COLOUR_PIN 10
-#define DEFAULT_LATCH_PIN  11
+#define FLIPDOT_WIDTH               32
+#define FLIPDOT_HEIGHT              16
 
+#define FLIPDOT_COL_PIN             8
+#define FLIPDOT_ROW_PIN             9
+#define FLIPDOT_COLOUR_PIN          10
+#define FLIPDOT_ENABLE_PIN          11
+#define FLIPDOT_RESET_PIN           12
+#define FLIPDOT_COIL_PIN            13
+
+/* How long are reset/advance pulses (µS) */
+#define PULSE_WIDTH     1
+
+/* how long is the coil energise pulse (µS) */
+#define COIL_PULSE      200
 
 /*
  * Flip Dot Panel (of unknown type) Driver
+ * derived from https://github.com/themainframe/esp32-flipdot-controller
  * 
- * Things we know:
- * A line that takes pulses to select a column (reset row count)
- * A line that takes pulses to select a row
- * A line which sets pixel colour high/low
- * A line with latches the choice and resets row/col counts
- * 
- * so: set col, set row, set colour, pull the latch
  */
  
 class FlipDotPanel
 {
   public:
-    FlipDotPanel(int pindelay=0, int colpin=DEFAULT_COL_PIN, int rowpin=DEFAULT_ROW_PIN,
-                 int colourpin=DEFAULT_COLOUR_PIN, int latchpin=DEFAULT_LATCH_PIN);
-                 
-    void setdot(int row, int col, bool pen);
+    FlipDotPanel();
 
-  private:
-    int _pin_col;
-    int _pin_row;
-    int _pin_colour;
-    int _pin_latch;
-    int _pin_delay;
-    void panel_init(void);
+    void enable();
+    void disable();    
+    void reset();
+    void next_row();
+    void next_col();
+    void set_colour(bool pen);
+    void commit();
+
+    void setdot(uint8_t row, uint8_t col, bool pen);
 };
 
 

@@ -2,46 +2,88 @@
 #include "panel.h"
 
 // Pin delay in microseconds sets size of pulses
-FlipDotPanel::FlipDotPanel(int pindelay, int colpin, int rowpin, int colourpin, int latchpin)
+FlipDotPanel::FlipDotPanel()
 {
-    _pin_delay = pindelay;
-    _pin_col = colpin;
-    _pin_row = rowpin;
-    _pin_colour = colourpin;
-    _pin_latch = latchpin;
+    pinMode(FLIPDOT_COL_PIN, OUTPUT);
+    pinMode(FLIPDOT_ROW_PIN, OUTPUT);
+    pinMode(FLIPDOT_COLOUR_PIN, OUTPUT);
+    pinMode(FLIPDOT_ENABLE_PIN, OUTPUT);
+    pinMode(FLIPDOT_RESET_PIN, OUTPUT);
+    pinMode(FLIPDOT_COIL_PIN, OUTPUT);
 
-    pinMode(_pin_col, OUTPUT);
-    pinMode(_pin_row, OUTPUT);
-    pinMode(_pin_colour, OUTPUT);
-    pinMode(_pin_latch, OUTPUT);
+    digitalWrite(FLIPDOT_COL_PIN, LOW);
+    digitalWrite(FLIPDOT_ROW_PIN, LOW);
+    digitalWrite(FLIPDOT_COLOUR_PIN, LOW);
+    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
+    digitalWrite(FLIPDOT_RESET_PIN, LOW);
+    digitalWrite(FLIPDOT_COIL_PIN, LOW);
 }
 
-void FlipDotPanel::setdot(int row, int col, bool pen)
+void FlipDotPanel::enable()
 {
-      // set the pen status ready
-      digitalWrite(_pin_colour, pen?HIGH:LOW);
-      
-      // set column, as it reset row
-      for (int i=0; i<col; i++) {
-        digitalWrite(_pin_col, HIGH);
-        if (_pin_delay > 0) delayMicroseconds(_pin_delay);
-        digitalWrite(_pin_col, LOW);
-        if (_pin_delay > 0) delayMicroseconds(_pin_delay);
-      }
-
-      // set row now it wont wander off
-      for (int i=0; i<row; i++) {
-        digitalWrite(_pin_row, HIGH);
-        if (_pin_delay > 0) delayMicroseconds(_pin_delay);
-        digitalWrite(_pin_row, LOW);
-        if (_pin_delay > 0) delayMicroseconds(_pin_delay);
-      }
-
-      // and latch it
-      digitalWrite(_pin_latch, HIGH);
-      if (_pin_delay > 0) delayMicroseconds(_pin_delay);
-      digitalWrite(_pin_latch, LOW);
-      if (_pin_delay > 0) delayMicroseconds(_pin_delay);
+    digitalWrite(FLIPDOT_ENABLE_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
 }
 
+void FlipDotPanel::disable()
+{
+    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
 
+/* reset the address lines */
+void FlipDotPanel::reset()
+{
+    digitalWrite(FLIPDOT_RESET_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
+    digitalWrite(FLIPDOT_RESET_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+void FlipDotPanel::next_row()
+{
+    digitalWrite(FLIPDOT_ROW_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
+    digitalWrite(FLIPDOT_ROW_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+void FlipDotPanel::next_col()
+{
+    digitalWrite(FLIPDOT_COL_PIN, HIGH);
+    delayMicroseconds(PULSE_WIDTH);
+    digitalWrite(FLIPDOT_COL_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+void FlipDotPanel::set_colour(bool pen)
+{
+    digitalWrite(FLIPDOT_COLOUR_PIN, pen?HIGH:LOW);
+}
+
+void FlipDotPanel::commit()
+{
+    digitalWrite(FLIPDOT_COIL_PIN, HIGH);
+    delayMicroseconds(COIL_PULSE);
+    digitalWrite(FLIPDOT_COIL_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
+}
+
+/*
+ * Set a single Pixel
+ *
+ * This operation is expensive, as it does a full reset and reposition
+ * for every pixel, try not to use it.
+ */
+void FlipDotPanel::setdot(uint8_t row, uint8_t col, bool pen)
+{
+    enable();
+    reset();
+    set_colour(pen);
+    for(uint8_t x=0; x<col; x++)
+        next_col();
+    for(uint8_t y=0; y<row; y++)
+        next_row();
+    commit();
+    disable();
+}

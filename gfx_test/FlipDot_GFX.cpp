@@ -55,16 +55,10 @@ void FlipDot_GFX::drawPixel(int16_t x, int16_t y, uint16_t color) {
 }
 
 // initializer if you want to specify all the pins
-FlipDot_GFX::FlipDot_GFX(int pd, int8_t cp, int8_t rp, int8_t ip, int8_t lp) 
+FlipDot_GFX::FlipDot_GFX() 
 : Adafruit_GFX(FLIPDOT_WIDTH, FLIPDOT_HEIGHT)
-, panel(pd, cp, rp, ip, lp) {
+, panel() {
 }
-
-FlipDot_GFX::FlipDot_GFX(int pd) 
-: Adafruit_GFX(FLIPDOT_WIDTH, FLIPDOT_HEIGHT)
-, panel(pd) {
-}
-
 
 void FlipDot_GFX::begin() {
   // Init sequence
@@ -93,29 +87,47 @@ void FlipDot_GFX::scrolldown(uint8_t num ){
     //TODO
 }
 
+/* Update panel by changing every dot */
 void FlipDot_GFX::refresh(void) {
+    // commit any changes to the graphics buffer
     memcpy(memory, buffer, FLIPDOT_WIDTH * (FLIPDOT_HEIGHT/8));
-    // Just update everything
+
+    // for debug print out the buffer
     Serial.println("Flipdot. refresh display");
     for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
         String line = y<10?"0":"";
         line += (String)y;
         line += ": ";
-        
         for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
             uint8_t block = memory[x + (y/8)*FLIPDOT_WIDTH];
             uint8_t patt = 1<<(y&7);
-
-            panel.setdot(y, x, block & patt?1:0);
             line += block & patt?"O ":"| ";
         }
         Serial.println(line);
     }
+
+    // Now enable the panel and reset the position
+    panel.enable();
+    panel.reset();
+
+    // We update a column at a time
+    for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+        for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
+            uint8_t block = memory[x + (y/8)*FLIPDOT_WIDTH];
+            uint8_t patt = 1<<(y&7);
+
+            panel.set_colour( block & patt?1:0 );
+            panel.commit();
+            panel.next_row();
+        }
+        panel.next_col();
+    }
+    panel.disable();
 }
 
 void FlipDot_GFX::display(void) {
-    //Work out what has changed between now and last time and send draw commands
-    Serial.println("Flipdot. commit display");
+    // for debug print out the buffer
+    Serial.println("Flipdot. update display, differences only");
     for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
         String line = y<10?"0":"";
         line += (String)y;
@@ -125,16 +137,51 @@ void FlipDot_GFX::display(void) {
             uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
             uint8_t patt = 1<<(y&7);
 
-                if (block & patt != old & patt) {
-                    panel.setdot(y, x, block & patt?1:0);
-                    line += block & patt?"O ":"| ";
-                } else {
-                    line += ". ";
-                }
+            if (block & patt != old & patt) {
+                line += block & patt?"O ":"| ";
+            } else {
+                line += ". ";
+            }
         }
         Serial.println(line);
     }
+
+    // Now enable the panel and reset the position
+    panel.enable();
+    panel.reset();
+
+    // We update a column at a time
+    for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+        bool changed = false;
+        // first check if anything in this column changed
+        for (uint8_t y=0; y<FLIPDOT_HEIGHT; y+=8) {
+            uint8_t block = buffer[x + (y/8)*FLIPDOT_WIDTH];
+            uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
+
+            if (block != old) changed = true;
+        }
+
+        // write the dots that changed in this column
+        if (changed) {
+            for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
+                uint8_t block = buffer[x + (y/8)*FLIPDOT_WIDTH];
+                uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
+                uint8_t patt = 1<<(y&7);
+
+                if (block & patt != old & patt) {
+                    panel.set_colour( block & patt?1:0 );
+                    panel.commit();
+                }
+                panel.next_row();
+            }
+        }
+        panel.next_col();
+    }
+    panel.disable();
+
+    // update the previous buffer memory
     memcpy(memory, buffer, FLIPDOT_WIDTH * (FLIPDOT_HEIGHT/8));
+
 }
 
 // clear everything

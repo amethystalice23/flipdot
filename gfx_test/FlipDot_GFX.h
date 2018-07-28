@@ -16,14 +16,10 @@ Adafruit SSD1306 drivers
 
 /*=========================================================================*/
 
-#define FLIPDOT_WIDTH            32
-#define FLIPDOT_HEIGHT           16
-
 
 class FlipDot_GFX : public Adafruit_GFX {
  public:
-  FlipDot_GFX(int pindelay, int8_t colpin, int8_t rowpin, int8_t inkpin, int8_t latchpin);
-  FlipDot_GFX(int pindelay);
+  FlipDot_GFX();
 
   void begin();
 
