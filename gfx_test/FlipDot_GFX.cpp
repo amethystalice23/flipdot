@@ -15,10 +15,10 @@
 #include "panel.h"
 
 // the memory buffer for the  panel
-static uint8_t buffer[FLIPDOT_HEIGHT * FLIPDOT_WIDTH / 8] = { 0 };
+static uint8_t buffer[FLIPDOT_HEIGHT * (FLIPDOT_WIDTH / 8)] = { 0 };
 
 // the memory of the previous buffer, ie whats displayed now
-static uint8_t memory[FLIPDOT_HEIGHT * FLIPDOT_WIDTH / 8] = { 0 };
+static uint8_t memory[FLIPDOT_HEIGHT * (FLIPDOT_WIDTH / 8)] = { 0 };
 
 
 #define flipdot_swap(a, b) { int16_t t = a; a = b; b = t; }
@@ -93,6 +93,7 @@ void FlipDot_GFX::refresh(void) {
     memcpy(memory, buffer, FLIPDOT_WIDTH * (FLIPDOT_HEIGHT/8));
 
     // for debug print out the buffer
+    Serial.print("\x1B""[1;1H");
     Serial.println("Flipdot. refresh display");
     for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
         String line = y<10?"0":"";
@@ -127,6 +128,7 @@ void FlipDot_GFX::refresh(void) {
 
 void FlipDot_GFX::display(void) {
     // for debug print out the buffer
+    Serial.print("\x1B""[1;1H");
     Serial.println("Flipdot. update display, differences only");
     for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
         String line = y<10?"0":"";
@@ -137,9 +139,13 @@ void FlipDot_GFX::display(void) {
             uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
             uint8_t patt = 1<<(y&7);
 
-            if (block & patt != old & patt) {
-                line += block & patt?"O ":"| ";
-            } else {
+            if ((block & patt) != (old & patt)) {
+                if (block & patt) 
+                    line += "O ";
+                else
+                    line += "| ";
+            } else
+            {
                 line += ". ";
             }
         }
@@ -253,9 +259,9 @@ void FlipDot_GFX::drawFastHLineInternal(int16_t x, int16_t y, int16_t w, uint16_
 
   switch (color)
   {
-  case WHITE:         while(w--) { *pBuf++ |= mask; }; break;
-    case BLACK: mask = ~mask;   while(w--) { *pBuf++ &= mask; }; break;
-  case INVERSE:         while(w--) { *pBuf++ ^= mask; }; break;
+    case WHITE:    while(w--) { *pBuf++ |= mask; }; break;
+    case BLACK:    mask = ~mask;   while(w--) { *pBuf++ &= mask; }; break;
+    case INVERSE:  while(w--) { *pBuf++ ^= mask; }; break;
   }
 }
 
