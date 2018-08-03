@@ -8,15 +8,13 @@ FlipDotPanel::FlipDotPanel()
     pinMode(FLIPDOT_ROW_PIN, OUTPUT);
     pinMode(FLIPDOT_COLOUR_PIN, OUTPUT);
     pinMode(FLIPDOT_ENABLE_PIN, OUTPUT);
-    pinMode(FLIPDOT_RESET_PIN, OUTPUT);
-    pinMode(FLIPDOT_COIL_PIN, OUTPUT);
+    pinMode(FLIPDOT_COMMIT_PIN, OUTPUT);
 
     digitalWrite(FLIPDOT_COL_PIN, LOW);
     digitalWrite(FLIPDOT_ROW_PIN, LOW);
     digitalWrite(FLIPDOT_COLOUR_PIN, LOW);
     digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
-    digitalWrite(FLIPDOT_RESET_PIN, LOW);
-    digitalWrite(FLIPDOT_COIL_PIN, LOW);
+    digitalWrite(FLIPDOT_COMMIT_PIN, LOW);
 }
 
 void FlipDotPanel::enable()
@@ -34,9 +32,9 @@ void FlipDotPanel::disable()
 /* reset the address lines */
 void FlipDotPanel::reset()
 {
-    digitalWrite(FLIPDOT_RESET_PIN, HIGH);
+    digitalWrite(FLIPDOT_COMMIT_PIN, HIGH);
     delayMicroseconds(PULSE_WIDTH);
-    digitalWrite(FLIPDOT_RESET_PIN, LOW);
+    digitalWrite(FLIPDOT_COMMIT_PIN, LOW);
     delayMicroseconds(PULSE_WIDTH);
 }
 
@@ -63,10 +61,10 @@ void FlipDotPanel::set_colour(bool pen)
 
 void FlipDotPanel::commit()
 {
-    digitalWrite(FLIPDOT_COIL_PIN, HIGH);
+//    digitalWrite(FLIPDOT_COIL_PIN, LOW);
     delayMicroseconds(COIL_PULSE);
-    digitalWrite(FLIPDOT_COIL_PIN, LOW);
-    delayMicroseconds(PULSE_WIDTH);
+//    digitalWrite(FLIPDOT_COIL_PIN, HIGH);
+//    delayMicroseconds(COIL_PULSE);
 }
 
 /*

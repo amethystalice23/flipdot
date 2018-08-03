@@ -9,25 +9,9 @@ void setup() {
   Serial.println('Simple Panel Test');
 }
 
-void loop() {
-  Serial.println('First test, slowly set all');
 
-  panel.enable();
-  panel.reset();
-  panel.set_colour(1);
-  for(int col=0; col<FLIPDOT_WIDTH; col++) {
-    for (int row=0;row<FLIPDOT_HEIGHT; row++) {
-        panel.commit();
-        panel.next_row();
-        delay(500);   // SLOW it down so we can see it working
-    }
-    panel.next_col();
-  }
-  panel.disable();
-
-  Serial.println("Pausing");
-  delay(2000);
-
+void clear_all(int speed)
+{
   Serial.println("Second test. clear all slowly");
   panel.enable();
   panel.reset();
@@ -36,16 +20,31 @@ void loop() {
     for (int row=0;row<FLIPDOT_HEIGHT; row++) {
         panel.commit();
         panel.next_row();
-        delay(500);   // SLOW it down so we can see it working
+        delay(speed);   // SLOW it down so we can see it working
     }
     panel.next_col();
   }
   panel.disable();
+  
+}
+void set_all(int speed)
+{
+  panel.enable();
+  panel.reset();
+  panel.set_colour(1);
+  for(int col=0; col<FLIPDOT_WIDTH; col++) {
+    for (int row=0;row<FLIPDOT_HEIGHT; row++) {
+        panel.commit();
+        panel.next_row();
+        delay(speed);   // SLOW it down so we can see it working
+    }
+    panel.next_col();
+  }
+  panel.disable();
+}
 
-  Serial.println("Pausing");
-  delay(2000);
-
-  Serial.println("Running dot test");
+void snake(int speed)
+{
   int xa=0, xb=0, ya=0, yb=0;
   int stepdir = 1;
  
@@ -55,8 +54,8 @@ void loop() {
     xb=xa;
 
     xa += stepdir;
-    if (xa < 0) {
-      xa = 0;
+    if (xa < 1) {
+      xa = 1;
       stepdir = 1;
       ya++;
     } else
@@ -70,7 +69,15 @@ void loop() {
       break;
     }
     panel.setdot(ya, xa, 1);
-    delay(500);   // SLOW it down so we can see it working
+    delay(speed);   // SLOW it down so we can see it working
   }while (1);
-  delay(2000);
+}
+void loop() {
+  clear_all(0);
+  set_all(50);
+  delay(1000);
+  clear_all(10);
+  delay(1000);
+  snake(10);
+  snake(50);
 }
