@@ -9,8 +9,9 @@
 #define FLIPDOT_COL_PIN             8
 #define FLIPDOT_ROW_PIN             9
 #define FLIPDOT_COLOUR_PIN          10
-#define FLIPDOT_ENABLE_PIN          11
-#define FLIPDOT_COMMIT_PIN          12
+#define FLIPDOT_COMMIT_PIN          11
+#define FLIPDOT_ENABLE_PIN          12
+#define FLIPDOT_COILPOWER_PIN       13
 
 /* How long are reset/advance pulses (µS) */
 #define PULSE_WIDTH     1

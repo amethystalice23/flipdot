@@ -1,20 +1,21 @@
 
 #include "panel.h"
 
-// Pin delay in microseconds sets size of pulses
 FlipDotPanel::FlipDotPanel()
 {
     pinMode(FLIPDOT_COL_PIN, OUTPUT);
     pinMode(FLIPDOT_ROW_PIN, OUTPUT);
     pinMode(FLIPDOT_COLOUR_PIN, OUTPUT);
-    pinMode(FLIPDOT_ENABLE_PIN, OUTPUT);
     pinMode(FLIPDOT_COMMIT_PIN, OUTPUT);
+    pinMode(FLIPDOT_ENABLE_PIN, OUTPUT);
+    pinMode(FLIPDOT_COILPOWER_PIN, OUTPUT);
 
     digitalWrite(FLIPDOT_COL_PIN, LOW);
     digitalWrite(FLIPDOT_ROW_PIN, LOW);
     digitalWrite(FLIPDOT_COLOUR_PIN, LOW);
-    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
     digitalWrite(FLIPDOT_COMMIT_PIN, LOW);
+    digitalWrite(FLIPDOT_ENABLE_PIN, LOW);
+    digitalWrite(FLIPDOT_COILPOWER_PIN, LOW);
 }
 
 void FlipDotPanel::enable()
@@ -38,6 +39,7 @@ void FlipDotPanel::reset()
     delayMicroseconds(PULSE_WIDTH);
 }
 
+/* advance to next row */
 void FlipDotPanel::next_row()
 {
     digitalWrite(FLIPDOT_ROW_PIN, HIGH);
@@ -46,6 +48,7 @@ void FlipDotPanel::next_row()
     delayMicroseconds(PULSE_WIDTH);
 }
 
+/* advance to next column (resets row) */
 void FlipDotPanel::next_col()
 {
     digitalWrite(FLIPDOT_COL_PIN, HIGH);
@@ -54,17 +57,20 @@ void FlipDotPanel::next_col()
     delayMicroseconds(PULSE_WIDTH);
 }
 
+/* change the colour that the pixel will be when you commit */
 void FlipDotPanel::set_colour(bool pen)
 {
     digitalWrite(FLIPDOT_COLOUR_PIN, pen?HIGH:LOW);
 }
 
+/* Drive the 15v lines high to energise the coils
+ * and remagnetize the pixel */
 void FlipDotPanel::commit()
 {
-//    digitalWrite(FLIPDOT_COIL_PIN, LOW);
+    digitalWrite(FLIPDOT_COILPOWER_PIN, HIGH);
     delayMicroseconds(COIL_PULSE);
-//    digitalWrite(FLIPDOT_COIL_PIN, HIGH);
-//    delayMicroseconds(COIL_PULSE);
+    digitalWrite(FLIPDOT_COILPOWER_PIN, LOW);
+    delayMicroseconds(PULSE_WIDTH);
 }
 
 /*
