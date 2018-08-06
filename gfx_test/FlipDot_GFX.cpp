@@ -68,23 +68,59 @@ void FlipDot_GFX::begin() {
 
 
 // scrollright - scroll whole panel right 'num' pixels
-void FlipDot_GFX::scrollright(uint8_t num ){
-    //TODO
+void FlipDot_GFX::scrollright(){
+    uint8_t const csize = FLIPDOT_HEIGHT/8;
+    uint8_t *p = buffer;
+    for (uint8_t i=0; i<csize; i++) {
+        memmove(p+1, p, FLIPDOT_WIDTH-1);
+        *p = 0;
+        p += FLIPDOT_WIDTH;
+    }
 }
 
 // scrollleft - scroll whole panel left 'num' pixels
-void FlipDot_GFX::scrollleft(uint8_t num ){
-    //TODO
+void FlipDot_GFX::scrollleft(){
+    uint8_t const csize = FLIPDOT_HEIGHT/8;
+    uint8_t *p = buffer;
+    for (uint8_t i=0; i<csize; i++) {
+        memmove(p, p+1, FLIPDOT_WIDTH-1);
+        p[FLIPDOT_WIDTH-1] = 0;
+        p += FLIPDOT_WIDTH;
+    }
 }
 
 // scrollup - scroll whole panel up 'num' pixels
-void FlipDot_GFX::scrollup(uint8_t num ){
-    //TODO
+void FlipDot_GFX::scrollup(){
+    uint8_t const csize = FLIPDOT_HEIGHT/8;
+    uint8_t carry[FLIPDOT_WIDTH];
+    uint8_t *p = buffer + (csize - 1) * FLIPDOT_WIDTH;
+
+    memset(carry, 0, FLIPDOT_WIDTH);
+    for (uint8_t i=0; i<csize; i++) {
+        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+            uint8_t v = (p[x] >> 1) | (carry[x]<<7);
+            carry[x] = p[x] & 0x01;
+            p[x] = v;
+        }
+        p -= FLIPDOT_WIDTH;
+    }
 }
 
 // scrolldown - scroll whole panel down 'num' pixels
-void FlipDot_GFX::scrolldown(uint8_t num ){
-    //TODO
+void FlipDot_GFX::scrolldown(){
+    uint8_t const csize = FLIPDOT_HEIGHT/8;
+    uint8_t carry[FLIPDOT_WIDTH];
+    uint8_t *p = buffer;
+
+    memset(carry, 0, FLIPDOT_WIDTH);
+    for (uint8_t i=0; i<csize; i++) {
+        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+            uint8_t v = (p[x] << 1) | (carry[x]>>7);
+            carry[x] = p[x] & 0x80;
+            p[x] = v;
+        }
+        p += FLIPDOT_WIDTH;
+    }
 }
 
 /* Update panel by changing every dot */
@@ -92,6 +128,7 @@ void FlipDot_GFX::refresh(void) {
     // commit any changes to the graphics buffer
     memcpy(memory, buffer, FLIPDOT_WIDTH * (FLIPDOT_HEIGHT/8));
 
+#ifdef DEBUG
     // for debug print out the buffer
     Serial.print("\x1B""[1;1H");
     Serial.println("Flipdot. refresh display");
@@ -106,6 +143,7 @@ void FlipDot_GFX::refresh(void) {
         }
         Serial.println(line);
     }
+#endif
 
     // Now enable the panel and reset the position
     panel.enable();
@@ -127,6 +165,7 @@ void FlipDot_GFX::refresh(void) {
 }
 
 void FlipDot_GFX::display(void) {
+#ifdef DEBUG
     // for debug print out the buffer
     Serial.print("\x1B""[1;1H");
     Serial.println("Flipdot. update display, differences only");
@@ -151,6 +190,7 @@ void FlipDot_GFX::display(void) {
         }
         Serial.println(line);
     }
+#endif
 
     // Now enable the panel and reset the position
     panel.enable();

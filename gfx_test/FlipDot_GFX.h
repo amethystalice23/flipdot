@@ -15,6 +15,10 @@ Adafruit SSD1306 drivers
 #define INVERSE 2
 
 /*=========================================================================*/
+/* define DEBUG if you want a Serial port debugging of the panel output */
+#undef DEBUG
+
+/*=========================================================================*/
 
 
 class FlipDot_GFX : public Adafruit_GFX {
@@ -27,11 +31,10 @@ class FlipDot_GFX : public Adafruit_GFX {
   void display();
   void refresh();
 
-  void scrollright(uint8_t num);
-  void scrollleft(uint8_t num);
-
-  void scrolldown(uint8_t num);
-  void scrollup(uint8_t num);
+  void scrollright();
+  void scrollleft();
+  void scrolldown();
+  void scrollup();
 
   void drawPixel(int16_t x, int16_t y, uint16_t color);
 
