@@ -214,7 +214,7 @@ void FlipDot_GFX::display(void) {
                 uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
                 uint8_t patt = 1<<(y&7);
 
-                if (block & patt != old & patt) {
+                if ((block & patt) != (old & patt)) {
                     panel.set_colour( block & patt?1:0 );
                     panel.commit();
                 }

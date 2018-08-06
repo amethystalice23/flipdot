@@ -109,9 +109,14 @@ void waggle(String msg, int speed)
 }
 
 void loop() {
+  display.invert();
   display.clearDisplay();
   display.refresh();
   Serial.println("\x1B[0KText: Clear Panel");
+  delay(1000);
+
+  display.fillRect(0,0,display.width(), display.height(), WHITE);
+  display.refresh();
   delay(1000);
 
   display.clearDisplay();

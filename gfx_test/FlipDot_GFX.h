@@ -16,7 +16,7 @@ Adafruit SSD1306 drivers
 
 /*=========================================================================*/
 /* define DEBUG if you want a Serial port debugging of the panel output */
-#undef DEBUG
+#undef DEBUG 
 
 /*=========================================================================*/
 
