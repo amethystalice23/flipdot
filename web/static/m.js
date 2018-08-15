@@ -19,10 +19,12 @@ var imgData=ctx.createImageData(96,34);
 var x = 0;
 for (var i=0;i<imgData.data.length;i+=4){
     var y = 0;
+    var b = 0;
+    if (x>1535 && x<1728) b = 255;
     if(pix[x]) y = 255;
     imgData.data[i+0]=y;
     imgData.data[i+1]=y;
-    imgData.data[i+2]=0;
+    imgData.data[i+2]=b;
     imgData.data[i+3]=255;
     x++;
 }
