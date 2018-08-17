@@ -84,7 +84,7 @@ def sintext():
         )
     while True:
         pygame.event.pump()
-        webapp.sock.sleep(0.015)
+        webapp.sock.sleep(0.03)
 
         surface.fill((0, 0, 0, 255))
         for thing in spheres:

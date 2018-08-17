@@ -1,6 +1,6 @@
 """GIFImage by Matthew Roe"""
 
-import Image
+from PIL import Image
 import pygame
 from pygame.locals import *
 
@@ -84,7 +84,7 @@ class GIFImage(object):
                 else:
                     palette = base_palette
 
-                pi = pygame.image.fromstring(image.tostring(), image.size, image.mode)
+                pi = pygame.image.fromstring(image.tobytes(), image.size, image.mode)
                 pi.set_palette(palette)
                 if "transparency" in image.info:
                     pi.set_colorkey(image.info["transparency"])
@@ -172,31 +172,31 @@ class GIFImage(object):
         new.reversed = self.reversed
         return new
 
-##def main():
-##    pygame.init()
-##    screen = pygame.display.set_mode((640, 480))
-##
-##    hulk = GIFImage("hulk.gif")
-##    football = GIFImage("football.gif")
-##    hulk2 = hulk.copy()
-##    hulk2.reverse()
-##    hulk3 = hulk.copy()
-##    hulk3.set_bounds(0, 2)
-##    spiderman = GIFImage("spiderman7.gif")
-##
-##    while 1:
-##        for event in pygame.event.get():
-##            if event.type == QUIT:
-##                pygame.quit()
-##                return
-##
-##        screen.fill((255,255,255))
-##        hulk.render(screen, (50, 0))
-##        hulk2.render(screen, (50, 150))
-##        hulk3.render(screen, (50, 300))
-##        football.render(screen, (200, 50))
-##        spiderman.render(screen, (200, 150))
-##        pygame.display.flip()
-##
-##if __name__ == "__main__":
-##    main()
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((640, 480))
+
+    hulk = GIFImage("gifs/fire.gif")
+    football = GIFImage("gifs/fire.gif")
+    hulk2 = hulk.copy()
+    hulk2.reverse()
+    hulk3 = hulk.copy()
+    hulk3.set_bounds(0, 2)
+    spiderman = GIFImage("gifs/fire.gif")
+
+    while 1:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                return
+
+        screen.fill((255,255,255))
+        hulk.render(screen, (50, 0))
+        hulk2.render(screen, (50, 150))
+        hulk3.render(screen, (50, 300))
+        football.render(screen, (200, 50))
+        spiderman.render(screen, (200, 150))
+        pygame.display.flip()
+
+if __name__ == "__main__":
+    main()

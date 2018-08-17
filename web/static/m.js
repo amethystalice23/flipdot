@@ -48,6 +48,9 @@ function sintext() {
 function cube() {
     socket.emit('alert_button', 'cube')
 }
+function lunar() {
+    socket.emit('alert_button', 'lunar')
+}
 function resize() {
 	// Our canvas must cover full height of screen
 	// regardless of the resolution

@@ -3,6 +3,7 @@ from flask_socketio import *
 from eventlet import *
 from games.snake import *
 from games.cube import *
+from games.lunarlander import *
 from games.sintext import *
 pool = eventlet.GreenPool()
 eventlet.monkey_patch()
@@ -35,6 +36,8 @@ def handle_json_button(json):
 def handle_alert_event(json):
     if (json == "snake"):
         eventlet.spawn(snake())
+    if (json == "lunar"):
+        eventlet.spawn(lunar())
     if (json == "sintext"):
         eventlet.spawn(sintext())
     if (json == "cube"):
