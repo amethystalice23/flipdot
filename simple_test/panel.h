@@ -3,9 +3,11 @@
 
 #include "Arduino.h"
 
+/* Panel dimensions */
 #define FLIPDOT_WIDTH               32
 #define FLIPDOT_HEIGHT              16
 
+/* PIN Definitions */
 #define FLIPDOT_COL_PIN             8
 #define FLIPDOT_ROW_PIN             9
 #define FLIPDOT_COLOUR_PIN          10

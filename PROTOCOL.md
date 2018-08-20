@@ -34,6 +34,7 @@ Coordinate system: 0,0 is top left
 * S - Scroll - Scroll entire buffer
 * T - Text - Write Text
 * B - Bitmap - Write this explict pixel pattern
+* M - Marquee - Continuously scroll this text
 
 ### [R] Refresh panel
 
@@ -74,7 +75,7 @@ graphics buffer. Does not update the display until Committed.
     yy = Hexadecimal row number of top left corner
     cc = Hexadecimal column number of bottom right corner
     rr = Hexadecimal row number of bottom right corner
-    t =  0 filled rectangle off, 1 filled rectangle on
+    t =  0,1 clear or set filled, 2,3 clear or set outline
 
 Causes the Addressed panel to draw a rectangle of the given type in
 the working graphics buffer. Does not update the display until Committed.
@@ -138,3 +139,10 @@ the output with zeros in the unused lsb.
     X...X = 10001xxx = 10001000 = 88
 
    Resulting command: 0B0000552050A88888\n
+
+### [M] Marquee Text
+
+    BytePattern: AM...\n
+
+Continuously scroll this marquee text
+
