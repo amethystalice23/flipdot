@@ -4,9 +4,10 @@
 <canvas width="96" height="34" id="c"></canvas>
 <canvas width="96" height="34" id="c2"></canvas>
 <div class=page>
-    {% for game in gamelist %}
-        <button type="button" onclick="{{ game }}()">{{ game }}</button>
-    {% endfor %}
+    <button type="button" onclick="snake()">Snake</button>
+    <button type="button" onclick="cube()">Cube</button>
+    <button type="button" onclick="sintext()">Text</button>
+    <button type="button" onclick="lunar()">Lunar</button>
 </div>
 <script type="text/javascript" src="{{ url_for('static', filename='socket.io.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='m.js') }}"></script>

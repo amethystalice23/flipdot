@@ -37,71 +37,74 @@ class Point3D:
         y = -self.y * factor + win_height / 2
         return Point3D(x, y, 1)
 
-class Simulation:
-    def __init__(self, win_width = 96, win_height = 34):
-        pygame.init()
 
-        self.screen = pygame.Surface((win_width, win_height))
-        self.clock = pygame.time.Clock()
+def run():
 
-        self.vertices = [
-            Point3D(-1,1,-1),
-            Point3D(1,1,-1),
-            Point3D(1,-1,-1),
-            Point3D(-1,-1,-1),
-            Point3D(-1,1,1),
-            Point3D(1,1,1),
-            Point3D(1,-1,1),
-            Point3D(-1,-1,1)
-        ]
+    win_width = 96
+    win_height = 34
+    pygame.init()
 
-        # Define the vertices that compose each of the 6 faces. These numbers are
-        # indices to the vertices list defined above.
-        self.faces = [(0,1,2,3),(1,5,6,2),(5,4,7,6),(4,0,3,7),(0,4,5,1),(3,2,6,7)]
-        self.angleX, self.angleY, self.angleZ = 0, 0, 0
+    screen = pygame.Surface((win_width, win_height))
+    clock = pygame.time.Clock()
 
-    def run(self):
-        webapp.cnc.put("killall",False)
-        webapp.sock.sleep(0.3)
+    vertices = [
+        Point3D(-1,1,-1),
+        Point3D(1,1,-1),
+        Point3D(1,-1,-1),
+        Point3D(-1,-1,-1),
+        Point3D(-1,1,1),
+        Point3D(1,1,1),
+        Point3D(1,-1,1),
+        Point3D(-1,-1,1)
+    ]
+
+    # Define the vertices that compose each of the 6 faces. These numbers are
+    # indices to the vertices list defined above.
+    faces = [(0,1,2,3),(1,5,6,2),(5,4,7,6),(4,0,3,7),(0,4,5,1),(3,2,6,7)]
+    angleX, angleY, angleZ = 0, 0, 0
+    
+    
+    webapp.cnc.put("killall",False)
+    webapp.sock.sleep(0.3)
+    try:
+        kill = webapp.cnc.get(False)
+    except:
+        pass
+    kill = "no"
+    while 1:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+        pygame.event.pump()
+        webapp.sock.sleep(0.02)
+        screen.fill((0,0,0))
+
+        # Will hold transformed vertices.
+        t = []
+        for v in vertices:
+            # Rotate the point around X axis, then around Y axis, and finally around Z axis.
+            r = v.rotateX(angleX).rotateY(angleY).rotateZ(angleZ)
+            # Transform the point from 3D to 2D
+            p = r.project(screen.get_width(), screen.get_height(), 256, 22)
+            # Put the point in the list of transformed vertices
+            t.append(p)
+
+        for f in faces:
+            pygame.draw.line(screen, (255,255,255), (t[f[0]].x, t[f[0]].y), (t[f[1]].x, t[f[1]].y))
+            pygame.draw.line(screen, (255,255,255), (t[f[1]].x, t[f[1]].y), (t[f[2]].x, t[f[2]].y))
+            pygame.draw.line(screen, (255,255,255), (t[f[2]].x, t[f[2]].y), (t[f[3]].x, t[f[3]].y))
+            pygame.draw.line(screen, (255,255,255), (t[f[3]].x, t[f[3]].y), (t[f[0]].x, t[f[0]].y))
+        angleX += 1
+        angleY += 1
+        angleZ += 1
+
+        pixels = pygame.surfarray.array2d(pygame.transform.flip(pygame.transform.rotate(screen.convert(8),90),False,True))
+        pix = pixels.astype(bool).tobytes()
+        webapp.sock.emit('pixels',pix)
         try:
             kill = webapp.cnc.get(False)
         except:
             pass
-        kill = "no"
-        while 1:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-
-            pygame.event.pump()
-            webapp.sock.sleep(0.02)
-            self.screen.fill((0,0,0))
-
-            # Will hold transformed vertices.
-            t = []
-            for v in self.vertices:
-                # Rotate the point around X axis, then around Y axis, and finally around Z axis.
-                r = v.rotateX(self.angleX).rotateY(self.angleY).rotateZ(self.angleZ)
-                # Transform the point from 3D to 2D
-                p = r.project(self.screen.get_width(), self.screen.get_height(), 256, 22)
-                # Put the point in the list of transformed vertices
-                t.append(p)
-
-            for f in self.faces:
-                pygame.draw.line(self.screen, (255,255,255), (t[f[0]].x, t[f[0]].y), (t[f[1]].x, t[f[1]].y))
-                pygame.draw.line(self.screen, (255,255,255), (t[f[1]].x, t[f[1]].y), (t[f[2]].x, t[f[2]].y))
-                pygame.draw.line(self.screen, (255,255,255), (t[f[2]].x, t[f[2]].y), (t[f[3]].x, t[f[3]].y))
-                pygame.draw.line(self.screen, (255,255,255), (t[f[3]].x, t[f[3]].y), (t[f[0]].x, t[f[0]].y))
-            self.angleX += 1
-            self.angleY += 1
-            self.angleZ += 1
-
-            pixels = pygame.surfarray.array2d(pygame.transform.flip(pygame.transform.rotate(self.screen.convert(8),90),False,True))
-            pix = pixels.astype(bool).tobytes()
-            webapp.sock.emit('pixels',pix)
-            try:
-                kill = webapp.cnc.get(False)
-            except:
-                pass
-            if(kill == "killall"):
-                return
+        if(kill == "killall"):
+            return

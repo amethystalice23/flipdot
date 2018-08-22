@@ -68,7 +68,7 @@ class SinusTextPy(object):
         else:
             self.position = 0
 
-def sintext():
+def run():
     webapp.cnc.put("killall",False)
     webapp.sock.sleep(0.3)
     ctrl = "right"

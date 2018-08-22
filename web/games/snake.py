@@ -1,8 +1,7 @@
-import flask,eventlet,pygame,random,pygame.freetype,io,numpy
+import flask, pygame, random, pygame.freetype, io, numpy, webapp, games, eventlet
 from pygame.locals import *
 from flask_socketio import *
-import webapp
-def snake():
+def run():
     webapp.cnc.put("killall",False)
     webapp.sock.sleep(0.3)
     ctrl = "right"
@@ -25,7 +24,7 @@ def snake():
         pix = pixels.astype(bool).tobytes()
         webapp.sock.emit('pixels',pix)
         webapp.sock.sleep(2)
-        eventlet.spawn(snake())
+        eventlet.spawn(games.snake.run())
         pygame.quit()
         return
 
