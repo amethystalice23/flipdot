@@ -1,12 +1,17 @@
 <!doctype html>
-<title>◉ ◎ 𝑭𝒍𝒊𝒑𝗦𝘄𝗮𝗻𝘀𝗲𝗮</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='m.css') }}">
-<canvas width="96" height="34" id="c"></canvas>
-<canvas width="96" height="34" id="c2"></canvas>
+<title>◉ 𝑭𝒍𝒊𝒑𝗦𝘄𝗮𝗻𝘀𝗲𝗮 ◎</title>
+<link rel=stylesheet type=text/css href="/static/m.css">
 <div class=page>
-    {% for game in gamelist %}
-        <button type="button" onclick="{{ game }}()">{{ game }}</button>
-    {% endfor %}
+<div id="app">
+  <p>
+    <router-link to="/snake">Snake</router-link>
+    <router-link to="/cube">Cube</router-link>
+  </p>
+  <router-view></router-view>
 </div>
-<script type="text/javascript" src="{{ url_for('static', filename='socket.io.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='m.js') }}"></script>
+</div>
+<script src="/static/vue.js"></script>
+<script src="/static/vue-router.js"></script>
+<script src="/static/socket.io.js"></script>
+<script src="/games.js"></script>
+<script src="/static/m.js"></script>
