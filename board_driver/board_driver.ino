@@ -60,19 +60,24 @@ void show_text(String text)
   display.display();
 }
 
+int8_t hextoi(char h)
+{
+    if (h >= '0' && h <= '9')
+        return h - '0';
+    if (h >= 'A' && h < 'F')
+        return 10 + (h - 'A');
+    if (h >= 'a' && h < 'f')
+        return 10 + (h - 'a');
+    return -1;
+}
+
 unsigned int readHex(String hex)
 {
     unsigned int val = 0;
     for (uint8_t i=0; i<hex.length(); i++) {
-        char h = hex.charAt(i);
-        if (h >= '0' && h <= '9')
-            val |= h - '0';
-        else
-        if (h >= 'A' && h < 'F')
-            val |= 10 + (h - 'A');
-        else
-        if (h >= 'a' && h < 'f')
-            val |= 10 + (h - 'a');
+        char h = hextoi( hex.charAt(i) );
+        if (h != -1)
+            val |= h;
         val <<= 4;
     }
     return val;
@@ -111,7 +116,39 @@ void setup() {
   show_text("#" + (String)unit);
   delay(200);
 
-  inbuff.reserve(32);
+  inbuff.reserve(132);
+}
+
+/* unpack a bitmap into flipdot pixels */
+void write_bitmap(const char *buff)
+{
+    int x=0, y=0;
+    uint8_t const h = display.height();
+    uint8_t const w = display.width();
+
+    if (buff[0] == 0) return;
+    if (buff[1] != 'B') return;
+    buff += 2;
+
+    while (*buff != 0) {
+        int8_t v = hextoi(*buff);
+        /* bad character, not hex, stop */
+        if (v == -1) break;
+        if (x >= w) {
+            x = 0;
+            y++;
+        }
+        /* guard against overruns */
+        if (y >= h) break;
+
+        display.drawPixel(x  , y, (v&8)?WHITE:BLACK);
+        display.drawPixel(x+1, y, (v&4)?WHITE:BLACK);
+        display.drawPixel(x+2, y, (v&2)?WHITE:BLACK);
+        display.drawPixel(x+3, y, (v&1)?WHITE:BLACK);
+
+        x += 4;
+        buff++;
+    }
 }
 
 void processCommand(String incoming)
@@ -171,7 +208,7 @@ void processCommand(String incoming)
             show_text(incoming.substring(7));
             break;
         case 'B':
-            // FIXME
+            write_bitmap(incoming.c_str());
             break;
         case 'M':
             // FIXME

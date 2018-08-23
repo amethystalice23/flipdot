@@ -33,7 +33,8 @@ Coordinate system: 0,0 is top left
 * L - Line - Draw a Line
 * S - Scroll - Scroll entire buffer
 * T - Text - Write Text
-* B - Bitmap - Write this explict pixel pattern
+* B - Bitmap - Raw bitmap of entire panel
+* G - Graphic - Graphical bitmap object/sprite for animations
 * M - Marquee - Continuously scroll this text
 
 ### [R] Refresh panel
@@ -119,8 +120,26 @@ Renders text at the given position.
     Example: 0T10000Hello World\n
 
 ### [B] Bitmap
+    BytePattern: AB.......\n
 
-    BytePattern: ABxxyywh.......\n
+    Raw bitmap pattern for entire panel (32x16)
+
+    Data is transmitted as Hexadecimal characters.
+    16 sets of 8 (32/4) characters.
+
+    1111 1111 1111 1111 1111 1111 1111 1111 = FFFFFFFF
+    1000 0000 0000 0000 0000 0000 0000 0001 = 80000001
+    1010 0010 1111 1010 0000 1000 0001 1101 = A2FA081D
+    1010 0010 1000 0010 0000 1000 0010 0011 = A2820823
+    1011 1110 1110 0010 0000 1000 0010 0011 = BEE20823
+    1010 0010 1000 0010 0000 1000 0010 0011 = A2820823
+    1010 0010 1111 1011 1110 1111 0001 1101 = A2FBEF1D ....
+
+    ABFFFFFFFF80000001A2FA081DA2820823BEE20823A2820823A2FBEF1D....\n
+
+### [G] Graphic/Sprite
+
+    BytePattern: AGxxyywh.......\n
 
     xx,yy = top left corner to place the Bitmap
     w,h = width/height (single hex number) of the Bitmap
