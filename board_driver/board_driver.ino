@@ -58,6 +58,10 @@ void show_text(String text)
   display.setCursor(0,4);
   display.print(text);
   display.display();
+#ifdef DEBUG
+  Serial.print("Display text: ");
+  Serial.println(text);
+#endif
 }
 
 int8_t hextoi(char h)
@@ -76,9 +80,9 @@ unsigned int readHex(String hex)
     unsigned int val = 0;
     for (uint8_t i=0; i<hex.length(); i++) {
         char h = hextoi( hex.charAt(i) );
-        if (h != -1)
-            val |= h;
+        if (h == -1) break;
         val <<= 4;
+        val |= h;
     }
     return val;
 }
@@ -91,6 +95,9 @@ bool ignoreLine = false;
 String inbuff;
 
 void setup() {
+  /* reserve ram for the input buffer */
+  inbuff.reserve(132);
+
   /* these pins give the unit address */
   pinMode(PANELADDR_0, INPUT_PULLUP);
   pinMode(PANELADDR_1, INPUT_PULLUP);
@@ -99,14 +106,27 @@ void setup() {
 
   /* Serial port to receive commands */
   Serial.begin(115200);
+#ifdef DEBUG
+  Serial.print("\x1B""[2J");
+  Serial.print("\x1B""[1;1H");
+  Serial.println("FlipDot Driver");
+#endif
 
   /* initialise the flipdot panel */
   display.begin();
   display.setRotation(0);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setTextWrap(false);
   display.clearDisplay();
   display.refresh();
   delay(200);
+#ifdef DEBUG
+  Serial.println("Initial clear");
+  delay(5000);
+#endif
 
+  /* read the unit id number and display it */
   unit = read_paneladdr();
   if (unit < 10)
       unitc = '0' + unit;
@@ -114,9 +134,11 @@ void setup() {
       unitc = 'A' + (unit - 10);
 
   show_text("#" + (String)unit);
+#ifdef DEBUG
+  Serial.println("Flipdot Unit #" + (String)unit + " = '"+(String)unitc+"'");
+#endif
   delay(200);
 
-  inbuff.reserve(132);
 }
 
 /* unpack a bitmap into flipdot pixels */
@@ -155,22 +177,37 @@ void processCommand(String incoming)
 {
     char cmd = incoming.charAt(1);
     int x1, y1, x2, y2, c;
+#ifdef DEBUG
+    String debug;
+#endif
 
     switch (cmd) {
         case 'R':
             display.refresh();
+#ifdef DEBUG
+            debug += "Forced Refresh";
+#endif
             break;
         case 'C':
             display.display();
+#ifdef DEBUG
+            debug += "Commit";
+#endif
             break;
         case 'W':
             display.clearDisplay();
+#ifdef DEBUG
+            debug += "Wipe Display";
+#endif
             break;
         case 'D':
             x1 = readHex(incoming.substring(2,4));
             y1 = readHex(incoming.substring(4,6));
             c = readHex(incoming.substring(6,7));
             display.drawPixel(x1, y1, c);
+#ifdef DEBUG
+            debug += "Pixel ("+String(x1)+","+String(y1)+") = "+String(c);
+#endif
             break;
         case 'X':
             x1 = readHex(incoming.substring(2,4));
@@ -178,10 +215,17 @@ void processCommand(String incoming)
             x2 = readHex(incoming.substring(6,8));
             y2 = readHex(incoming.substring(8,10));
             c = readHex(incoming.substring(10,11));
-            if (c > 1)
+            if (c > 1) {
                 display.drawRect(x1, y1, x2, y2, c-2);
-            else
+#ifdef DEBUG
+                debug += "Rect ("+String(x1)+","+String(y1)+"),("+String(x2)+","+String(y2)+") = "+String(c-2);
+#endif
+            } else {
                 display.fillRect(x1, y1, x2, y2, c);
+#ifdef DEBUG
+                debug += "FillRect ("+String(x1)+","+String(y1)+"),("+String(x2)+","+String(y2)+") = "+String(c);
+#endif
+            }
             break;
         case 'L':
             x1 = readHex(incoming.substring(2,4));
@@ -190,6 +234,9 @@ void processCommand(String incoming)
             y2 = readHex(incoming.substring(8,10));
             c = readHex(incoming.substring(10,11));
             display.drawLine(x1, y1, x2, y2, c);
+#ifdef DEBUG
+            debug += "Line ("+String(x1)+","+String(y1)+"),("+String(x2)+","+String(y2)+") = "+String(c);
+#endif
             break;
         case 'S':
             x1 = incoming.charAt(2);
@@ -202,18 +249,37 @@ void processCommand(String incoming)
                     case 'd': display.scrollright(); break; 
                 }
             }
+#ifdef DEBUG
+            debug += "Scroll dir="+String(x1)+" dist="+String(c);
+#endif
             break;
         case 'T':
             // FIXME
             show_text(incoming.substring(7));
+#ifdef DEBUG
+            debug += "Text: " + incoming.substring(7);
+#endif
             break;
         case 'B':
             write_bitmap(incoming.c_str());
+#ifdef DEBUG
+            debug += "Bitmap";
+#endif
             break;
         case 'M':
             // FIXME
+#ifdef DEBUG
+            debug += "Marquee: " + incoming.substring(2);
+#endif
             break;
     }
+#ifdef DEBUG
+  Serial.print("\x1B""[18;1H");
+  Serial.print("\x1B""[0K");
+  Serial.print("Command: ");
+  Serial.print(cmd);
+  Serial.println(" - "+debug);
+#endif
 }
 
 void loop() {

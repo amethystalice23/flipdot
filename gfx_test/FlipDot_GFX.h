@@ -15,8 +15,10 @@ Adafruit SSD1306 drivers
 #define INVERSE 2
 
 /*=========================================================================*/
-/* define DEBUG if you want a Serial port debugging of the panel output */
-#undef DEBUG 
+/* define DEBUG if you want a Serial port debugging of the panel output
+ * ONLY ever use on a single panel as it replies over serial with data
+ * that will mess up any other listening units.                            */
+#undef DEBUG
 
 /*=========================================================================*/
 

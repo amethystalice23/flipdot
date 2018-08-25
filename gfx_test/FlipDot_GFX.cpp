@@ -23,6 +23,60 @@ static uint8_t memory[FLIPDOT_HEIGHT * (FLIPDOT_WIDTH / 8)] = { 0 };
 
 #define flipdot_swap(a, b) { int16_t t = a; a = b; b = t; }
 
+
+#ifdef DEBUG
+/* DEBUG functions, only compile in when DEBUG mode is set */
+
+static void display_buffer(uint8_t *buff)
+{
+    // for debug print out the buffer
+    Serial.print("\x1B""[1;1H");
+    Serial.println("Flipdot. refresh display");
+    for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
+        String line = y<10?"0":"";
+        line += (String)y;
+        line += ": ";
+        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+            uint8_t block = buff[x + (y/8)*FLIPDOT_WIDTH];
+            uint8_t patt = 1<<(y&7);
+            line += block & patt?"O ":"| ";
+        }
+        Serial.println(line);
+    }
+}
+
+/* Display current buffer, highlighting dots that updated */
+static void display_diff(uint8_t *buff, uint8_t *last)
+{
+    // for debug print out the buffer
+    Serial.print("\x1B""[1;1H");
+    Serial.println("Flipdot. differences display");
+    for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
+        String line = y<10?"0":"";
+        line += (String)y;
+        line += ": ";
+        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
+            uint8_t block = buff[x + (y/8)*FLIPDOT_WIDTH];
+            uint8_t old = last[x + (y/8)*FLIPDOT_WIDTH];
+            uint8_t patt = 1<<(y&7);
+
+            if ((block & patt) != (old & patt))
+                line += "\x1B""[33m";
+            else
+                line += "\x1B""[0m";
+
+            if (block & patt) 
+                line += "O ";
+            else
+                line += "| ";
+        }
+        Serial.println(line);
+    }
+    Serial.print("\x1B""[0m");
+}
+
+#endif //DEBUG
+
 // the most basic function, set a single pixel
 void FlipDot_GFX::drawPixel(int16_t x, int16_t y, uint16_t color) {
   if ((x < 0) || (x >= width()) || (y < 0) || (y >= height()))
@@ -129,20 +183,7 @@ void FlipDot_GFX::refresh(void) {
     memcpy(memory, buffer, FLIPDOT_WIDTH * (FLIPDOT_HEIGHT/8));
 
 #ifdef DEBUG
-    // for debug print out the buffer
-    Serial.print("\x1B""[1;1H");
-    Serial.println("Flipdot. refresh display");
-    for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
-        String line = y<10?"0":"";
-        line += (String)y;
-        line += ": ";
-        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
-            uint8_t block = memory[x + (y/8)*FLIPDOT_WIDTH];
-            uint8_t patt = 1<<(y&7);
-            line += block & patt?"O ":"| ";
-        }
-        Serial.println(line);
-    }
+    display_buffer(memory);
 #endif
 
     // Now enable the panel and reset the position
@@ -166,30 +207,7 @@ void FlipDot_GFX::refresh(void) {
 
 void FlipDot_GFX::display(void) {
 #ifdef DEBUG
-    // for debug print out the buffer
-    Serial.print("\x1B""[1;1H");
-    Serial.println("Flipdot. update display, differences only");
-    for (uint8_t y=0; y<FLIPDOT_HEIGHT; y++) {
-        String line = y<10?"0":"";
-        line += (String)y;
-        line += ": ";
-        for (uint8_t x=0; x<FLIPDOT_WIDTH; x++) {
-            uint8_t block = buffer[x + (y/8)*FLIPDOT_WIDTH];
-            uint8_t old = memory[x + (y/8)*FLIPDOT_WIDTH];
-            uint8_t patt = 1<<(y&7);
-
-            if ((block & patt) != (old & patt)) {
-                if (block & patt) 
-                    line += "O ";
-                else
-                    line += "| ";
-            } else
-            {
-                line += ". ";
-            }
-        }
-        Serial.println(line);
-    }
+    display_diff(buffer, memory);
 #endif
 
     // Now enable the panel and reset the position
