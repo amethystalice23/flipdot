@@ -1,4 +1,4 @@
-import sys, math, pygame
+import sys, math, pygame, time
 import flask,eventlet,pygame, random, pygame.freetype, io,numpy
 from pygame.locals import *
 from flask_socketio import SocketIO, send, emit
@@ -39,7 +39,7 @@ class Point3D:
 
 
 def run():
-
+    sendbitmap = webapp.sendbitmap()
     win_width = 96
     win_height = 34
     pygame.init()
@@ -62,20 +62,7 @@ def run():
     # indices to the vertices list defined above.
     faces = [(0,1,2,3),(1,5,6,2),(5,4,7,6),(4,0,3,7),(0,4,5,1),(3,2,6,7)]
     angleX, angleY, angleZ = 0, 0, 0
-    
-    
-    webapp.cnc.put("killall",False)
-    webapp.sock.sleep(0.3)
-    try:
-        kill = webapp.cnc.get(False)
-    except:
-        pass
-    kill = "no"
     while 1:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-
         pygame.event.pump()
         webapp.sock.sleep(0.02)
         screen.fill((0,0,0))
@@ -98,13 +85,4 @@ def run():
         angleX += 1
         angleY += 1
         angleZ += 1
-
-        pixels = pygame.surfarray.array2d(pygame.transform.flip(pygame.transform.rotate(screen.convert(8),90),False,True))
-        pix = pixels.astype(bool).tobytes()
-        webapp.sock.emit('pixels',pix)
-        try:
-            kill = webapp.cnc.get(False)
-        except:
-            pass
-        if(kill == "killall"):
-            return
+        sendbitmap.pixels(screen)

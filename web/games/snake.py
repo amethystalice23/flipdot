@@ -1,15 +1,8 @@
-import flask, pygame, random, pygame.freetype, io, numpy, webapp, games, eventlet
+import flask, pygame, random, pygame.freetype, io, numpy, webapp, games, eventlet, time
 from pygame.locals import *
 from flask_socketio import *
 def run():
-    webapp.cnc.put("killall",False)
-    webapp.sock.sleep(0.3)
-    ctrl = "right"
-    try:
-        kill = webapp.cnc.get(False)
-    except:
-        pass
-    kill = "no"
+    framerate = 5
     # pixels = io.StringIO("Test!")
     def collide(x1, x2, y1, y2):
         if x1==x2 and y1==y2:
@@ -43,6 +36,8 @@ def run():
     img.fill((255,255,255))
     f=pygame.freetype.Font('games/fonts/blackout.fon')
     #clock = pygame.time.Clock()
+    ctrl = "right"
+    sendbitmap = webapp.sendbitmap()
 
 
     while True:
@@ -83,13 +78,5 @@ def run():
         s.blit(appleimage, applepos)
         t=f.render(str(score),fgcolor=(255,255,255))
         s.blit(t[0], (2, 2))
-        pixels = pygame.surfarray.array2d(pygame.transform.flip(pygame.transform.rotate(s.convert(8),90),False,True))
-        pix = pixels.astype(bool).tobytes()
-        webapp.sock.emit('pixels',pix)
-        try:
-            kill = webapp.cnc.get(False)
-        except:
-            pass
-        if (kill == "killall"):
-            return
+        sendbitmap.pixels(s)
     return

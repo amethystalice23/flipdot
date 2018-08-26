@@ -3,7 +3,8 @@ const routes = [
   { path: '/cube', component: Cube }
 ]
 const router = new VueRouter({
-  routes
+  routes,
+  hashbang: false
 })
 new Vue({
     router

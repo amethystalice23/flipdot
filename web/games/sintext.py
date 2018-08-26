@@ -1,9 +1,6 @@
-#!/usr/bin/python3
-
 import pygame
 import sys
 import math
-
 import flask,eventlet,pygame,random,pygame.freetype,io,numpy
 from pygame.locals import *
 from flask_socketio import *
@@ -28,7 +25,8 @@ class SinusTextPy(object):
         (int) frequency - frequency of sinus wave
         (pygame.Color) color - color of font
         (int) size - size of font
-        """
+ww
+`"""
         self.surface = surface
         # prepend an append some spaces
         appendix = " " * int(self.surface.get_width() / size)
@@ -69,23 +67,15 @@ class SinusTextPy(object):
             self.position = 0
 
 def run():
-    webapp.cnc.put("killall",False)
-    webapp.sock.sleep(0.3)
-    ctrl = "right"
-    try:
-        kill = webapp.cnc.get(False)
-    except:
-        pass
-    kill = "no"
     surface = pygame.Surface((96, 34))
     pygame.init()
     spheres = (
         SinusTextPy(surface, "    * *  SWANSEA HACKSPACE  * *  A new life awaits you in the Off-World Colonies! ...", 4, 15, 0.3, pygame.Color(255,255,255)),
         )
+    sendbitmap = webapp.sendbitmap()
     while True:
         pygame.event.pump()
         webapp.sock.sleep(0.03)
-
         surface.fill((0, 0, 0, 255))
         for thing in spheres:
             thing.update(hpos=None)
@@ -95,13 +85,5 @@ def run():
         surface.blit(t[0], (47, 0))
         t=g.render("{0:.1f}".format(temp)+"°",fgcolor=(255,255,255))
         surface.blit(t[0], (1, 25))
-        pixels = pygame.surfarray.array2d(pygame.transform.flip(pygame.transform.rotate(surface.convert(8),90),False,True))
-        pix = pixels.astype(bool).tobytes()
-        webapp.sock.emit('pixels',pix)
-        try:
-            kill = webapp.cnc.get(False)
-        except:
-            pass
-        if (kill == "killall"):
-            return
+        sendbitmap.pixels(surface)
     return
