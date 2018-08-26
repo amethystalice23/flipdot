@@ -9,6 +9,7 @@
 #endif
 
 #include <stdlib.h>
+#include <cthread.h>
 
 #include "Adafruit_GFX.h"
 #include "FlipDot_GFX.h"
@@ -198,6 +199,7 @@ void FlipDot_GFX::refresh(void) {
 
             panel.set_colour( block & patt?1:0 );
             panel.commit();
+            cth_yield();
             panel.next_row();
         }
         panel.next_col();
@@ -235,6 +237,7 @@ void FlipDot_GFX::display(void) {
                 if ((block & patt) != (old & patt)) {
                     panel.set_colour( block & patt?1:0 );
                     panel.commit();
+                    cth_yield();
                 }
                 panel.next_row();
             }

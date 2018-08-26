@@ -1,5 +1,15 @@
+/*
+ * Swansea Hackspace FlipDot Driver system
+ * 
+ * Library Requires:
+ * - Adafruit GFX Library
+ * - CopyThreads
+ */
+ 
+ #include <Cth.h>
 #include <Adafruit_GFX.h>
 #include "FlipDot_GFX.h"
+
 
 FlipDot_GFX display;
 
@@ -95,9 +105,6 @@ bool ignoreLine = false;
 String inbuff;
 
 void setup() {
-  /* reserve ram for the input buffer */
-  inbuff.reserve(132);
-
   /* these pins give the unit address */
   pinMode(PANELADDR_0, INPUT_PULLUP);
   pinMode(PANELADDR_1, INPUT_PULLUP);
@@ -139,6 +146,7 @@ void setup() {
 #endif
   delay(200);
 
+  Scheduler.startLoop(loopSerial);
 }
 
 /* unpack a bitmap into flipdot pixels */
@@ -173,13 +181,21 @@ void write_bitmap(const char *buff)
     }
 }
 
-void processCommand(String incoming)
+void processCommand()
 {
-    char cmd = incoming.charAt(1);
+    String incoming;
+    char cmd;
     int x1, y1, x2, y2, c;
 #ifdef DEBUG
     String debug;
 #endif
+    /* signal that we have copied the command */
+    incoming.concat(inbuff);
+    inbuff = "";
+    Scheduler.yield();
+
+
+    cmd = incoming.charAt(1);
 
     switch (cmd) {
         case 'R':
@@ -282,17 +298,35 @@ void processCommand(String incoming)
 #endif
 }
 
-void loop() {
+int wait_strlen(int len)
+{
+  return inbuff.length() == len;
+}
+
+/* thread to read serial port */
+void loopSerial()
+{
+  Scheduler.wait_available(Serial);
+  
   /* if there is text available, read it */
   while (Serial.available()) {
       char c = Serial.read();
       if (c == '\n') {
           char target = inbuff.charAt(0);
-          if (target == '*' || target == unitc)
-              processCommand(inbuff);
-          inbuff = "";
+          if (target == '*' || target == unitc) {
+              /* Start a new thread to interpret the command */
+              Scheduler.start(processCommand);
+              Scheduler.wait(wait_strlen, 0);
+          } else {
+#ifdef DEBUG
+              Serial.print("\x1B""[18;1H");
+              Serial.print("\x1B""[0K");
+              Serial.println("Ignore Command "+inbuff.substring(1,2)+" for unit "+String(target));
+#endif
+              inbuff = "";
+          }
       } else
           inbuff += c;
   }
-  /* any other regular tasks go here */
 }
+
