@@ -101,7 +101,7 @@ class sendbitmap:
             self.panels[5] = pygame.transform.rotate(self.panels[5],180)
 
             for addr,panel in enumerate(self.panels):
-                print(str(addr)+"B"+binascii.hexlify(numpy.packbits(self.canvastobits(panel))).decode('ascii'))
+                print(str(addr)+"B"+binascii.hexlify(numpy.packbits(self.canvastobits(panel))).decode('ascii').upper())
                 #print(numpy.array(self.canvastobits(i).astype(int)))
             print("*C\n")
 
