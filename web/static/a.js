@@ -52,27 +52,3 @@ function resize() {
 window.addEventListener('load', resize, false);
 window.addEventListener('resize', resize, false);
 
-document.onkeydown = checkKey;
-
-function checkKey(e) {
-
-    e = e || window.event;
-
-    if (e.keyCode == '38') {
-        socket.emit('control', 'up')
-        // up arrow
-    }
-    else if (e.keyCode == '40') {
-        socket.emit('control', 'down')
-        // down arrow
-    }
-    else if (e.keyCode == '37') {
-        socket.emit('control', 'left')
-       // left arrow
-    }
-    else if (e.keyCode == '39') {
-        socket.emit('control', 'right')
-       // right arrow
-    }
-
-}

@@ -1,6 +1,8 @@
+
 const routes = [
   { path: '/snake', component: Snake },
-  { path: '/cube', component: Cube }
+  { path: '/cube', component: Cube },
+  { path: '/pong', component: Pong }
 ]
 const router = new VueRouter({
   routes,

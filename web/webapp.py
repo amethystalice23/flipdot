@@ -7,7 +7,7 @@ from time import sleep
 from flask_sqlalchemy import SQLAlchemy
 
 
-framerate = 10
+framerate = 18
 
 # Print IP Address
 print("\n  \033[1m\033[7m "+(([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]+" \033[0m")
@@ -28,6 +28,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/gamestate.db'
 db = SQLAlchemy(app)
 sock = SocketIO(app,async_handlers=True)
 q = eventlet.queue.Queue()
+padinput = 0
 cnc = eventlet.queue.Queue()
 
 currentgame = eventlet.spawn(games.cube.run)
@@ -79,7 +80,13 @@ def handle_alert_event(json):
     currentgame.kill()
     sock.sleep(0.3)
     currentgame = eventlet.spawn(getattr(games, json).run)
-
+@sock.on('control')
+def handle_json_button(json):
+    # it will forward the json to all clients.
+    q.put(json,False)
+    global padinput
+    padinput = json
+    sock.sleep(0.01)
 class sendbitmap:
     global framerate
     def __init__(self):
@@ -100,10 +107,10 @@ class sendbitmap:
             self.panels[5].blit(p,(0,0),(0,16,32,16))
             self.panels[5] = pygame.transform.rotate(self.panels[5],180)
 
-            for addr,panel in enumerate(self.panels):
-                print(str(addr)+"B"+binascii.hexlify(numpy.packbits(self.canvastobits(panel))).decode('ascii').upper())
+            #for addr,panel in enumerate(self.panels):
+                #print(str(addr)+"B"+binascii.hexlify(numpy.packbits(self.canvastobits(panel))).decode('ascii').upper())
                 #print(numpy.array(self.canvastobits(i).astype(int)))
-            print("*C\n")
+            #print("*C\n")
 
             self.lastframe = time.perf_counter()
 print("\n\033[1m\033[93m  F L I P D O T -- A C T I V A T E D\033[0m\n")
