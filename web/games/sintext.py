@@ -9,10 +9,13 @@ from time import localtime, strftime
 
 import pyowm
 owm = pyowm.OWM('080ffb507f0bd6b7c77c5f445f1d0db8')
-# Lat-Lon for EMF Camp, do not chnage! 
-observation = owm.weather_around_coords(52.029827,-2.387467)[0]
-w = observation.get_weather()
-temp = w.get_temperature('celsius')['temp']
+# Lat-Lon for EMF Camp, do not chnage!
+try:
+    observation = owm.weather_around_coords(52.029827,-2.387467)[0]
+    w = observation.get_weather()
+    temp = w.get_temperature('celsius')['temp']
+except:
+    temp = 0
 class SinusTextPy(object):
     """Sinus wave scroll text"""
 

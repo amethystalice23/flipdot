@@ -4,6 +4,10 @@ html,body {
     padding:0;
     margin:0;
     background:#333;
+    font-size:16px;
+}
+* {
+    font-family:"Consolas",monospace;
 }
 #c {
     display:none;
@@ -15,4 +19,32 @@ canvas {
     background:black;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
+}
+
+button {
+    color:yellow;
+    outline:2px solid yellow;
+    border:0;
+    background:#000;
+    width:19%;
+    height:2em;
+    vertical-align:middle;
+    margin:0.5em 0.5%;
+    padding:0.5em 0;
+    text-transform:uppercase;
+    font-weight:bold;
+    font-size:1.4em;
+}
+
+@media (orientation:portrait) {
+    html,body {
+font-size:16px;
+    }
+button {
+font-size:1.2em;
+    width:45%;
+    margin:0.5em 1.5%;
+    outline:3px solid yellow;
+}
+
 }
